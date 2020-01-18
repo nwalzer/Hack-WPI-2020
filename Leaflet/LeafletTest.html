@@ -8,7 +8,7 @@
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.css" rel="stylesheet" />
     <style>
         body { margin: 0; padding: 0; }
-        #map { position: absolute; top: 0; bottom: 0; width: 100%; };
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
     </style>
 </head>
 <body>
@@ -31,7 +31,7 @@
         center: [-71.806274, 42.274574], // starting position
         zoom: 15 // starting zoom
     });
-
+    /*
     map.on('load', function() {
         map.addSource('Parking-Spot', {
             'type': 'geojson',
@@ -44,10 +44,41 @@
                             'type': 'Polygon',
                             'coordinates': [
                                 [
-                                    [-71.806274, 42.274574],
-                                    [-121.284551, 40.584758],
-                                    [-121.275349, 40.541646],
-                                    [-121.246768, 40.541017],
+                                    [-71.810254, 42.275394],
+                                    [-71.810264, 42.275384],
+                                    [-71.810204, 42.275354],
+                                    [-71.810194, 42.275364],
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [
+                                [
+                                    [-71.810274, 42.275374],
+                                    [-71.810284, 42.275364],
+                                    [-71.810224, 42.275334],
+                                    [-71.810214, 42.275344],
+                                ]
+                            ]
+                        }
+                    },
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Polygon',
+                            'coordinates': [
+                                [
+                                    [-71.805444, 42.274584],
+                                    [-71.805834, 42.274554],
+                                    [-71.805964, 42.274494],
+                                    [-71.806244, 42.273624],
+                                    [-71.805944, 42.273604],
+                                    [-71.805964, 42.272874],
+                                    [-71.805784, 42.272834],
                                 ]
                             ]
                         }
@@ -66,7 +97,7 @@
             },
             'filter': ['==', '$type', 'Polygon']
         });
-    });
+    });// */
     map.addControl(
         new MapboxGeocoder({
             accessToken: mapboxgl.accessToken,
