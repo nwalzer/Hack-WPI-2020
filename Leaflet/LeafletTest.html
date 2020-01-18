@@ -25,15 +25,91 @@
 <div id="map"></div>
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoibndhbHplciIsImEiOiJjazVpemM3cDIwanIwM2xwMXp1dW13c2JnIn0.Cri3Kr0CZLDDx4Edz0y-vA';
+
     var map = new mapboxgl.Map({
         container: 'map', // container id
         style: 'mapbox://styles/mapbox/streets-v11',
         center: [-71.806274, 42.274574], // starting position
         zoom: 15 // starting zoom
     });
-    /*
+
+    var geojson = {
+        'type': 'FeatureCollection',
+        'features': [
+            {
+                'type': 'Feature',
+                'properties': {
+                    'id': 1,
+                    'iconSize': [20, 20]
+                },
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [-71.805874, 42.274574]
+                }
+            },
+            {
+                'type': 'Feature',
+                'properties': {
+                    'id': 2,
+                    'iconSize': [50, 50]
+                },
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [-61.2158203125, -15.97189158092897]
+                }
+            },
+            {
+                'type': 'Feature',
+                'properties': {
+                    'id': 3,
+                    'iconSize': [40, 40]
+                },
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [-63.29223632812499, -18.28151823530889]
+                }
+            }
+        ]
+    };
+    // add markers to map
+    geojson.features.forEach(function(marker) {
+        // create a DOM element for the marker
+        var el = document.createElement('div');
+        el.className = 'marker';
+        el.style.backgroundImage =
+            'url(https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic.newworldencyclopedia.org%2Fthumb%2F5%2F5f%2FParking_icon.svg%2F180px-Parking_icon.svg.png&f=1&nofb=1)';
+        el.style.width = marker.properties.iconSize[0] + 'px';
+        el.style.height = marker.properties.iconSize[1] + 'px';
+        el.style.backgroundSize = "contain";
+
+        el.addEventListener('click', function() {
+            var userLoc = document.getElementsByClassName("mapboxgl-user-location-dot");
+            if(userLoc.length > 0){
+                var userLocation = userLoc[0].style.transform;
+                console.log(userLocation);
+                var firstPX = userLocation.indexOf("px, ")
+                var userY = userLocation.substring(firstPX+4, userLocation.indexOf("px)"))
+                var userX = userLocation.substring(userLocation.indexOf(") ")+12, firstPX)
+                console.log("(" + userX + ", " + userY + ")")
+
+                var elLocation = el.style.transform
+                firstPX = elLocation.indexOf("px, ")
+                var elY = elLocation.substring(firstPX+4, elLocation.indexOf("px)"))
+                var elX = elLocation.substring(elLocation.indexOf(") ")+12, firstPX)
+                console.log("(" + elX + ", " + elY + ")")
+                console.log(el.style.transform);
+            }
+        });
+
+        // add marker to map
+        new mapboxgl.Marker(el)
+            .setLngLat(marker.geometry.coordinates)
+            .addTo(map);
+    });
+
     map.on('load', function() {
-        map.addSource('Parking-Spot', {
+
+        /*map.addSource('Parking-Spot', {
             'type': 'geojson',
             'data': {
                 'type': 'FeatureCollection',
@@ -98,6 +174,7 @@
             'filter': ['==', '$type', 'Polygon']
         });
     });// */
+    });
     map.addControl(
         new MapboxGeocoder({
             accessToken: mapboxgl.accessToken,
