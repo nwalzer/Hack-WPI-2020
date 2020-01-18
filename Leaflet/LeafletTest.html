@@ -98,6 +98,11 @@
                 var elX = elLocation.substring(elLocation.indexOf(") ")+12, firstPX)
                 console.log("(" + elX + ", " + elY + ")")
                 console.log(el.style.transform);
+
+                var distance = Math.sqrt(Math.pow(elX-userX, 2) + Math.pow(elY-userY, 2))
+                console.log(distance)
+                var conversion = 0.4115284 / 63.95
+                console.log(distance * conversion)
             }
         });
 
