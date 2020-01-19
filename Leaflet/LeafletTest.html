@@ -92,12 +92,15 @@
     geojson.features.forEach(function(marker) {
         // create a DOM element for the marker
         var el = document.createElement('div');
-        el.className = 'marker';
+        el.className = 'spot-marker';
         el.style.backgroundImage =
             'url(https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic.newworldencyclopedia.org%2Fthumb%2F5%2F5f%2FParking_icon.svg%2F180px-Parking_icon.svg.png&f=1&nofb=1)';
         el.style.width = marker.properties.iconSize[0] + 'px';
         el.style.height = marker.properties.iconSize[1] + 'px';
         el.style.backgroundSize = "contain";
+        el.dataset.lat = marker.geometry.coordinates[1]
+        el.dataset.long = marker.geometry.coordinates[0]
+
 
         /*el.addEventListener('click', function() {
             var userLoc = document.getElementsByClassName("mapboxgl-user-location-dot");
@@ -112,28 +115,6 @@
             }
         });*/
 
-        function getDistance(destination) {
-            // return distance in meters
-            var lon1 = toRadian(marker.geometry.coordinates[0]),
-                lat1 = toRadian(marker.geometry.coordinates[1]),
-                lon2 = toRadian(destination.coords.longitude),
-                lat2 = toRadian(destination.coords.latitude);
-
-            var deltaLat = lat2 - lat1;
-            var deltaLon = lon2 - lon1;
-
-            var a = Math.pow(Math.sin(deltaLat/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(deltaLon/2), 2);
-            var c = 2 * Math.asin(Math.sqrt(a));
-            var EARTH_RADIUS = 6371;
-            console.log(el)
-            if (c * EARTH_RADIUS * 1000 > 804.67){
-                el.classList.add("hidden");
-            }
-        }
-        function toRadian(degree) {
-            return degree*Math.PI/180;
-        }
-        navigator.geolocation.getCurrentPosition(getDistance)
         // add marker to map
         new mapboxgl.Marker(el)
             .setLngLat(marker.geometry.coordinates)
@@ -152,6 +133,12 @@
                     if(locButton.classList.contains("mapboxgl-ctrl-geolocate-active")){
                         navigator.geolocation.getCurrentPosition(showPosition)
                     } else {
+                        var spotMarkers = document.getElementsByClassName("spot-marker");
+                        for(var i = 0; i < spotMarkers.length; i++){
+                            if(spotMarkers[i].classList.contains("hidden")) {
+                                spotMarkers[i].classList.remove("hidden")
+                            }
+                        }
                         if (map.getLayer('nearby-spots')){
                             map.removeLayer('nearby-spots');
                         }
@@ -207,72 +194,38 @@
                 },
                 'filter': ['==', '$type', 'Point']
             });
-        }
-        /*map.addSource('Parking-Spot', {
-            'type': 'geojson',
-            'data': {
-                'type': 'FeatureCollection',
-                'features': [
-                    {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Polygon',
-                            'coordinates': [
-                                [
-                                    [-71.810254, 42.275394],
-                                    [-71.810264, 42.275384],
-                                    [-71.810204, 42.275354],
-                                    [-71.810194, 42.275364],
-                                ]
-                            ]
-                        }
-                    },
-                    {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Polygon',
-                            'coordinates': [
-                                [
-                                    [-71.810274, 42.275374],
-                                    [-71.810284, 42.275364],
-                                    [-71.810224, 42.275334],
-                                    [-71.810214, 42.275344],
-                                ]
-                            ]
-                        }
-                    },
-                    {
-                        'type': 'Feature',
-                        'geometry': {
-                            'type': 'Polygon',
-                            'coordinates': [
-                                [
-                                    [-71.805444, 42.274584],
-                                    [-71.805834, 42.274554],
-                                    [-71.805964, 42.274494],
-                                    [-71.806244, 42.273624],
-                                    [-71.805944, 42.273604],
-                                    [-71.805964, 42.272874],
-                                    [-71.805784, 42.272834],
-                                ]
-                            ]
-                        }
-                    }
-                ]
-            }
-        });
 
-        map.addLayer({
-            'id': 'TEST',
-            'type': 'fill',
-            'source': 'Parking-Spot',
-            'paint': {
-                'fill-color': '#FF0000',
-                'fill-opacity': 0.4
-            },
-            'filter': ['==', '$type', 'Polygon']
-        });
-    });// */
+            var spotMarkers = document.getElementsByClassName("spot-marker");
+            for(var i = 0; i < spotMarkers.length; i++){
+                console.log(spotMarkers[i])
+                getDistance(spotMarkers[i])
+            }
+
+            function getDistance(el) {
+                // return distance in meters
+                var lon1 = toRadian(el.dataset.long),
+                    lat1 = toRadian(el.dataset.lat),
+                    lon2 = toRadian(position.coords.longitude),
+                    lat2 = toRadian(position.coords.latitude);
+
+                var deltaLat = lat2 - lat1;
+                var deltaLon = lon2 - lon1;
+
+                var a = Math.pow(Math.sin(deltaLat/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(deltaLon/2), 2);
+                var c = 2 * Math.asin(Math.sqrt(a));
+                var EARTH_RADIUS = 6371;
+                console.log(el)
+                if (c * EARTH_RADIUS * 1000 > 804.67){
+                    el.classList.add("hidden");
+                } else {
+                    el.classList.remove("hidden")
+                }
+            }
+            function toRadian(degree) {
+                return degree*Math.PI/180;
+            }
+        }
+
     });
 
 
