@@ -167,6 +167,161 @@
             .sidenav {padding-top: 15px;}
             .sidenav a {font-size: 18px;}
         }
+
+
+        #range{
+            position: relative;
+            bottom: 5px;
+            left: 5px;
+        }
+
+        /* The slider itself */
+        #slide{
+            border-radius: 5px;
+            border: solid 2px rgba(0, 0, 0, .20);
+            background: #FEFEFE;
+            padding: 2px 2px 2px 5px;
+            -webkit-appearance: none;  /* Override default CSS styles */
+            appearance: none;
+            width: 180px; /* Full-width */
+            height: 30px; /* Specified height */
+            outline: black; /* Remove outline */
+            opacity: 0.99; /* Set transparency (for mouse-over effects on hover) */
+            -webkit-transition: .2s; /* 0.2 seconds transition on hover */
+            transition: opacity .2s;
+            z-index: 9999;
+        }
+
+
+        #locationFinder{
+            width: 30px; /* Full-width */
+            height: 30px; /* Specified height */
+            outline: black; /* Remove outline */
+            opacity: 0.99; /* Set transparency (for mouse-over effects on hover) */
+            z-index: 9999;
+            position: relative;
+            left: 97.1%;
+            top: 125px;
+        }
+
+        #userLoc{
+            border-radius: 5px;
+            border: solid 2px rgba(0, 0, 0, .20);
+            background: #FEFEFE;
+            height: 30px;
+            width: 30px;
+        }
+
+        .disappear{
+            opacity: 0;
+        }
+
+        /* Mouse-over effects
+        input[type="range"]:hover {
+            opacity: 1; /* Fully shown on mouse-over
+        }
+
+        /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look)*/
+        #slide::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 10px;
+            height: 10px;
+            background: #4CAF50;
+            cursor: pointer;
+        }
+
+        /*input[type="range"] ::-moz-range-thumb {
+            width: 25px; /* Set a specific slider handle width
+            height: 25px; /* Slider handle height
+            background: #4CAF50; /* Green background
+            cursor: pointer; /* Cursor on hover
+        }*/
+
+
+
+
+
+        * {box-sizing: border-box;}
+
+        /* Style the navbar */
+        .topnav {
+            overflow: hidden;
+            background-color: #2196F3;
+            width: 300px;
+        }
+
+
+        /* Navbar links */
+        .topnav a {
+            float: left;
+            display: block;
+            color: black;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 17px;
+        }
+
+        /* Navbar links on mouse-over */
+        .topnav a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        /* Active/current link */
+        .topnav a.active {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        /* Style the input container */
+        .topnav .search-container {
+            float: right;
+        }
+
+        /* Style the input field inside the navbar */
+        .topnav input[type=text] {
+            padding: 6px;
+            margin-top: 8px;
+            font-size: 17px;
+            border: none;
+        }
+
+        /* Style the button inside the input container */
+        .topnav .search-container button {
+            float: right;
+            padding: 6px;
+            margin-top: 8px;
+            margin-right: 16px;
+            background: #ddd;
+            font-size: 17px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .topnav .search-container button:hover {
+            background: #ccc;
+        }
+
+        /* Add responsiveness - On small screens, display the navbar vertically instead of horizontally */
+        @media screen and (max-width: 600px) {
+            .topnav .search-container {
+                float: none;
+            }
+            .topnav a, .topnav input[type=text], .topnav .search-container button {
+                float: none;
+                display: block;
+                text-align: left;
+                width: 200px;
+                margin: 0;
+                padding: 14px;
+            }
+            .topnav input[type=text] {
+                border: 1px solid #ccc;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -181,8 +336,55 @@
 <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
 
 <div id="map"></div>
+<div id="slide">
+    <input type="range" min="1" max="10" value="1" step="1" onchange="showValue(this.value)" />
+    <span id="range">1</span>
+    <script type="text/javascript">
+        function showValue(newValue) {
+            document.getElementById("range").innerHTML=newValue;
+            var button = document.getElementById("userLoc")
+                if(button.classList.contains("enabled")){
+                    showPosition()
+                }
+        }
+    </script>
+</div>
+<div id="locationFinder">
+    <input type="image" onclick="buttonAction()" class="disabled" id="userLoc" src="./images/ico-location.png" alt="Find Location" />
+</div>
 <script>
+    var position = {}
     mapboxgl.accessToken = 'pk.eyJ1IjoibndhbHplciIsImEiOiJjazVpemM3cDIwanIwM2xwMXp1dW13c2JnIn0.Cri3Kr0CZLDDx4Edz0y-vA';
+
+    function buttonAction(){
+        var el = document.getElementById("userLoc")
+        if(el.classList.contains("disabled")){
+            el.classList.remove("disabled")
+            el.classList.add("enabled")
+            showPosition()
+        } else {
+            el.classList.remove("enabled")
+            el.classList.add("disabled")
+            var spotMarkers = document.getElementsByClassName("spot-marker");
+            for(var i = 0; i < spotMarkers.length; i++){
+                if(spotMarkers[i].classList.contains("hidden")) {
+                    spotMarkers[i].classList.remove("hidden")
+                }
+            }
+            if (map.getLayer('nearby-spots')) {
+                map.removeLayer('nearby-spots');
+            }
+            if (map.getSource('parking-radius')) {
+                map.removeSource('parking-radius');
+            }
+            if (map.getLayer('curr-loc')) {
+                map.removeLayer('curr-loc');
+            }
+            if (map.getSource('current-location')) {
+                map.removeSource('current-location');
+            }
+        }
+    }
 
     var map = new mapboxgl.Map({
         container: 'map', // container id
@@ -197,12 +399,13 @@
             mapboxgl: mapboxgl
         })
     );
-    map.addControl(
+    /*map.addControl(
         new mapboxgl.GeolocateControl({
             positionOptions: {
                 enableHighAccuracy: true
             },
-            trackUserLocation: true
+            trackUserLocation: true,
+            showUserLocation: true
         }));//*/
     map.addControl(new mapboxgl.NavigationControl());
 
@@ -211,8 +414,7 @@
         .then(res => res.json())
         .then((out) => {
             console.log(out)
-            var geojson = out
-            geojson.features.forEach(function(marker) {
+            out.features.forEach(function(marker) {
                 // create a DOM element for the marker
                 var el = document.createElement('div');
                 el.className = 'spot-marker';
@@ -242,18 +444,19 @@
         })
         .catch(err => { throw err });
 
-
-    map.on('load', function() {
-        //navigator.geolocation.getCurrentPosition(showPosition)
+    function setupRadiusEL(){
+        navigator.geolocation.getCurrentPosition(updateGlobal, disableButton)
         var buttonList = document.getElementsByTagName("button")
         console.log(buttonList)
+
         for(var i = 0; i < buttonList.length; i++){
             if(buttonList[i].classList.contains("mapboxgl-ctrl-geolocate")){
                 console.log("FOUND ONE")
                 var locButton = buttonList[i]
                 locButton.addEventListener('click', function(e){
-                    if(locButton.classList.contains("mapboxgl-ctrl-geolocate-active")){
-                        navigator.geolocation.getCurrentPosition(showPosition)
+                    if(locButton.classList.contains("mapboxgl-ctrl-geolocate-active") ||
+                        locButton.classList.contains("mapboxgl-ctrl-geolocate-background")){
+                        showPosition()
                     } else {
                         var spotMarkers = document.getElementsByClassName("spot-marker");
                         for(var i = 0; i < spotMarkers.length; i++){
@@ -261,44 +464,87 @@
                                 spotMarkers[i].classList.remove("hidden")
                             }
                         }
-                        if (map.getLayer('nearby-spots')){
+                        if (map.getLayer('nearby-spots')) {
                             map.removeLayer('nearby-spots');
                         }
-                        if (map.getSource('parking-radius')){
+                        if (map.getSource('parking-radius')) {
                             map.removeSource('parking-radius');
+                        }
+                        if (map.getLayer('curr-loc')) {
+                            map.removeLayer('curr-loc');
+                        }
+                        if (map.getSource('current-location')) {
+                            map.removeSource('current-location');
                         }
                     }
                 })
             }
         }
-        function showPosition(position) {
-            console.log("Latitude: " + position.coords.latitude +
-                " Longitude: " + position.coords.longitude)
-            if (map.getLayer('nearby-spots')){
-                map.removeLayer('nearby-spots');
-            }
-            if (map.getSource('parking-radius')){
-                map.removeSource('parking-radius');
-            }
-            map.addSource('parking-radius', {
-                'type': 'geojson',
-                'data': {
-                    'type': 'FeatureCollection',
-                    'features': [
-                        {
-                            'type': 'Feature',
-                            'geometry': {
-                                'type': 'Point',
-                                'coordinates': [position.coords.longitude, position.coords.latitude]
-                            }
+    }
+
+    function disableButton(e){
+        var button = document.getElementById("userLoc")
+        button.classList.add("disappear")
+        var button = document.getElementById("locationFinder")
+        button.classList.add("disappear")
+        alert("This page requires location permissions to run. Please reload the page and allow location permissions.")
+    }
+    function updateGlobal(pos){
+        position = pos
+    }
+    function showPosition() {
+        console.log("Latitude: " + position.coords.latitude +
+            " Longitude: " + position.coords.longitude)
+        if (map.getLayer('nearby-spots')) {
+            map.removeLayer('nearby-spots');
+        }
+        if (map.getSource('parking-radius')) {
+            map.removeSource('parking-radius');
+        }
+        if (map.getLayer('curr-loc')) {
+            map.removeLayer('curr-loc');
+        }
+        if (map.getSource('current-location')) {
+            map.removeSource('current-location');
+        }
+        map.addSource('parking-radius', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [position.coords.longitude, position.coords.latitude]
                         }
-                    ]
-                }
-            });
+                    }
+                ]
+            }
+        });
 
-            const metersToPixelsAtMaxZoom = (meters, latitude) =>
-                meters / 0.075 / Math.cos(latitude * Math.PI / 180)
+        map.addSource('current-location', {
+            'type': 'geojson',
+            'data': {
+                'type': 'FeatureCollection',
+                'features': [
+                    {
+                        'type': 'Feature',
+                        'geometry': {
+                            'type': 'Point',
+                            'coordinates': [position.coords.longitude, position.coords.latitude]
+                        }
+                    }
+                ]
+            }
+        });
 
+        const metersToPixelsAtMaxZoom = (meters, latitude) =>
+            meters / 0.075 / Math.cos(latitude * Math.PI / 180)
+
+        var mileRadius = document.getElementById("range").innerHTML;
+        if(navigator.geolocation) {
+            console.log(navigator.geolocation)
             map.addLayer({
                 'id': 'nearby-spots',
                 'type': 'circle',
@@ -307,7 +553,7 @@
                     "circle-radius": {
                         stops: [
                             [0, 0],
-                            [20, metersToPixelsAtMaxZoom(800, position.coords.latitude)]
+                            [20, metersToPixelsAtMaxZoom((1609 * mileRadius) / 2, position.coords.latitude)]
                         ],
                         base: 2
                     },
@@ -316,48 +562,53 @@
                 },
                 'filter': ['==', '$type', 'Point']
             });
-
+            map.addLayer({
+                'id': 'curr-loc',
+                'type': 'circle',
+                'source': 'current-location',
+                'paint': {
+                    "circle-radius": 10,
+                    'circle-color': '#0000FF',
+                    'circle-opacity': 1
+                },
+                'filter': ['==', '$type', 'Point']
+            });
             var spotMarkers = document.getElementsByClassName("spot-marker");
             for(var i = 0; i < spotMarkers.length; i++){
-                getDistance(spotMarkers[i])
-            }
-
-            function getDistance(el) {
-                // return distance in meters
-                var lon1 = toRadian(el.dataset.long),
-                    lat1 = toRadian(el.dataset.lat),
-                    lon2 = toRadian(position.coords.longitude),
-                    lat2 = toRadian(position.coords.latitude);
-
-                var deltaLat = lat2 - lat1;
-                var deltaLon = lon2 - lon1;
-
-                var a = Math.pow(Math.sin(deltaLat/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(deltaLon/2), 2);
-                var c = 2 * Math.asin(Math.sqrt(a));
-                var EARTH_RADIUS = 6371;
-                if (c * EARTH_RADIUS * 1000 > 804.67){
-                    el.classList.add("hidden");
-                } else {
-                    el.classList.remove("hidden")
-                }
-            }
-            function toRadian(degree) {
-                return degree*Math.PI/180;
+                getDistance(spotMarkers[i], position)
             }
         }
+    }
+    function getDistance(el) {
+        var mileRadius = document.getElementById("range").innerHTML;
+        console.log(mileRadius)
+        // return distance in meters
+        var lon1 = toRadian(el.dataset.long),
+            lat1 = toRadian(el.dataset.lat),
+            lon2 = toRadian(position.coords.longitude),
+            lat2 = toRadian(position.coords.latitude);
 
+        var deltaLat = lat2 - lat1;
+        var deltaLon = lon2 - lon1;
+
+        var a = Math.pow(Math.sin(deltaLat/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(deltaLon/2), 2);
+        var c = 2 * Math.asin(Math.sqrt(a));
+        var EARTH_RADIUS = 6371;
+
+        if (c * EARTH_RADIUS * 1000 > (mileRadius*1609)/2){
+            el.classList.add("hidden");
+        } else {
+            el.classList.remove("hidden")
+        }
+    }
+    function toRadian(degree) {
+        return degree*Math.PI/180;
+    }
+    map.on('load', function(){
+        setupRadiusEL()
     });
 
-
-    map.on('click', function(e){
-        console.log(typeof(e))
-        console.log(e.lngLat)
-    })
 </script>
-
-<div class="slidecontainer">
-    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
-</div>
 
 <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
