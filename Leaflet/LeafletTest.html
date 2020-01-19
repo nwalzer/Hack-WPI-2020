@@ -6,6 +6,18 @@
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.6.1/mapbox-gl.css" rel="stylesheet" />
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
     <style>
         body { margin: 0; padding: 0; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
@@ -216,8 +228,8 @@
                 el.dataset.availability = marker.properties.availability
 
                 var popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-                    '<h1>Owner: ' + el.dataset.owner + '</h1>\n' +
-                        '<p>Available: ' + el.dataset.availability + '</p>\n' +
+                    '<h4><b>Owner: ' + el.dataset.owner + '</b></h4>\n' +
+                        '<p>Available: ' + el.dataset.availability + '</p>' +
                         '<p>' + el.dataset.price + ' / half hour     </p><button class="reserve-button" onclick="openNav()" type="button">Reserve</button>'
                 );
 
@@ -342,6 +354,11 @@
         console.log(e.lngLat)
     })
 </script>
+
+<div class="slidecontainer">
+    <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+</div>
+
 <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
     <div class="row">
@@ -395,12 +412,14 @@
     </div>
 </div>
 
-<!-- Use any element to open the sidenav -->
-<span onclick="openNav()">open</span>
 <script>
     /* Set the width of the side navigation to 250px */
     function openNav() {
         document.getElementById("mySidenav").style.width = "500px";
+        let ccform = document.getElementsByClassName("cc-input")
+        for(let i = 0; i < ccform.length; i++){
+            ccform[i].value = ""
+        }
     }
 
     /* Set the width of the side navigation to 0 */
