@@ -9,7 +9,152 @@
     <style>
         body { margin: 0; padding: 0; }
         #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-        .hidden { opacity: 0}
+        .hidden { opacity: 0 }
+        .reserve-button {
+            background-color: #AF4C50;
+            border: black;
+            color: white;
+            padding: 15px 25px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;}
+        .reserve-button:hover { background-color: red }
+        .row {
+            padding: 30px;
+            display: -ms-flexbox; /* IE10 */
+            display: flex;
+            -ms-flex-wrap: wrap; /* IE10 */
+            flex-wrap: wrap;
+            margin: 0 -16px;
+        }
+
+        .col-25 {
+            -ms-flex: 25%; /* IE10 */
+            flex: 25%;
+        }
+
+        .col-50 {
+            -ms-flex: 50%; /* IE10 */
+            flex: 50%;
+        }
+
+        .col-75 {
+            -ms-flex: 75%; /* IE10 */
+            flex: 75%;
+        }
+
+        .col-25,
+        .col-50,
+        .col-75 {
+            padding: 0 16px;
+        }
+
+        .container {
+            background-color: #f2f2f2;
+            padding: 5px 20px 15px 20px;
+            border: 1px solid lightgrey;
+            border-radius: 3px;
+        }
+
+        .cc-input {
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        label {
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .icon-container {
+            margin-bottom: 20px;
+            padding: 7px 0;
+            font-size: 24px;
+        }
+
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            margin: 10px 0;
+            border: none;
+            width: 100%;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 17px;
+        }
+
+        .btn:hover {
+            background-color: #45a049;
+        }
+
+        span.price {
+            float: right;
+            color: grey;
+        }
+
+        /* Responsive layout - when the screen is less than 800px wide, make the two columns stack on top of each other instead of next to each other (and change the direction - make the "cart" column go on top) */
+        @media (max-width: 800px) {
+            .row {
+                flex-direction: column-reverse;
+            }
+            .col-25 {
+                margin-bottom: 20px;
+            }
+        }
+        /* The side navigation menu */
+        .sidenav {
+            height: 100%; /* 100% Full-height */
+            width: 0; /* 0 width - change this with JavaScript */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Stay on top */
+            top: 0; /* Stay at the top */
+            left: 0;
+            background-color: #111; /* Black*/
+            overflow-x: hidden; /* Disable horizontal scroll */
+            padding-top: 30px; /* Place content 60px from the top */
+            padding-bottom: 50px;
+            transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+        }
+
+        /* The navigation menu links */
+        .sidenav a {
+            padding: 8px 8px 8px 32px;
+            text-decoration: none;
+            font-size: 25px;
+            color: #818181;
+            display: block;
+            transition: 0.3s;
+        }
+
+        /* When you mouse over the navigation links, change their color */
+        .sidenav a:hover {
+            color: #f1f1f1;
+        }
+
+        /* Position and style the close button (top right corner) */
+        .sidenav .closebtn {
+            position: absolute;
+            top: 0;
+            right: 25px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+
+        /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+        #main {
+            transition: margin-left .5s;
+            padding: 20px;
+        }
+
+        /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+        @media screen and (max-height: 450px) {
+            .sidenav {padding-top: 15px;}
+            .sidenav a {font-size: 18px;}
+        }
     </style>
 </head>
 <body>
@@ -71,9 +216,9 @@
                 el.dataset.availability = marker.properties.availability
 
                 var popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-                    '<h1>' + el.dataset.owner + '</h1>\n' +
+                    '<h1>Owner: ' + el.dataset.owner + '</h1>\n' +
                         '<p>Available: ' + el.dataset.availability + '</p>\n' +
-                        '<p>' + el.dataset.price + ' / half hour</p>'
+                        '<p>' + el.dataset.price + ' / half hour     </p><button class="reserve-button" onclick="openNav()" type="button">Reserve</button>'
                 );
 
                 // add marker to map
@@ -196,6 +341,72 @@
         console.log(typeof(e))
         console.log(e.lngLat)
     })
+</script>
+<div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <div class="row">
+        <div class="col-75">
+            <div class="container">
+                <form action="/action_page.php">
+
+                    <div class="row">
+                        <div class="col-50">
+                            <h3>Billing Address</h3>
+                            <label for="fname"><i class="fa fa-user"></i> Full Name</label>
+                            <input class="cc-input" type="text" id="fname" name="firstname" placeholder="John M. Doe">
+                            <label for="email"><i class="fa fa-envelope"></i> Email</label>
+                            <input class="cc-input" type="text" id="email" name="email" placeholder="john@example.com">
+                            <label for="adr"><i class="fa fa-address-card-o"></i> Address</label>
+                            <input class="cc-input" type="text" id="adr" name="address" placeholder="542 W. 15th Street">
+                            <label for="city"><i class="fa fa-institution"></i> City</label>
+                            <input class="cc-input" type="text" id="city" name="city" placeholder="New York">
+                            <label for="state">State</label>
+                            <input class="cc-input" type="text" id="state" name="state" placeholder="NY">
+                            <label for="zip">Zip</label>
+                            <input class="cc-input" type="text" id="zip" name="zip" placeholder="10001">
+                        </div>
+
+                        <div class="col-50">
+                            <h3>Payment</h3>
+                            <label for="fname">Accepted Payments</label>
+                            <div class="icon-container">
+                                <img src="images/paymentCapture.JPG" style="width:200px">
+                            </div>
+                            <label for="cname">Name on Card</label>
+                            <input class="cc-input" type="text" id="cname" name="cardname" placeholder="John More Doe">
+                            <label for="ccnum">Credit card number</label>
+                            <input class="cc-input" type="text" id="ccnum" name="cardnumber" placeholder="1111-2222-3333-4444">
+                            <label for="expmonth">Exp Month</label>
+                            <input class="cc-input" type="text" id="expmonth" name="expmonth" placeholder="September">
+                            <label for="expyear">Exp Year</label>
+                            <input class="cc-input" type="text" id="expyear" name="expyear" placeholder="2018">
+                            <label for="cvv">CVV</label>
+                            <input class="cc-input" type="text" id="cvv" name="cvv" placeholder="352">
+                        </div>
+
+                    </div>
+                    <label>
+                        <input type="checkbox" checked="checked" name="sameadr"> Shipping address same as billing
+                    </label>
+                    <input type="submit" value="Continue to checkout" class="btn">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Use any element to open the sidenav -->
+<span onclick="openNav()">open</span>
+<script>
+    /* Set the width of the side navigation to 250px */
+    function openNav() {
+        document.getElementById("mySidenav").style.width = "500px";
+    }
+
+    /* Set the width of the side navigation to 0 */
+    function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+    }
 </script>
 
 </body>
