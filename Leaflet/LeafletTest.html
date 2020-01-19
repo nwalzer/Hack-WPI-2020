@@ -49,77 +49,42 @@
         }));//*/
     map.addControl(new mapboxgl.NavigationControl());
 
-    var geojson = {
-        'type': 'FeatureCollection',
-        'features': [
-            {
-                'type': 'Feature',
-                'properties': {
-                    'id': 1,
-                    'iconSize': [20, 20]
-                },
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': [-71.805874, 42.274574]
-                }
-            },
-            {
-                'type': 'Feature',
-                'properties': {
-                    'id': 2,
-                    'iconSize': [50, 50]
-                },
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': [-61.2158203125, -15.97189158092897]
-                }
-            },
-            {
-                'type': 'Feature',
-                'properties': {
-                    'id': 3,
-                    'iconSize': [40, 40]
-                },
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': [-63.29223632812499, -18.28151823530889]
-                }
-            }
-        ]
-    };
+    let url = 'https://raw.githubusercontent.com/centaurius/FindYourSpot/gh-pages/geojson/spotapp-locs.json';
+    fetch(url)
+        .then(res => res.json())
+        .then((out) => {
+            console.log(out)
+            var geojson = out
+            geojson.features.forEach(function(marker) {
+                // create a DOM element for the marker
+                var el = document.createElement('div');
+                el.className = 'spot-marker';
+                el.style.backgroundImage =
+                    'url(https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic.newworldencyclopedia.org%2Fthumb%2F5%2F5f%2FParking_icon.svg%2F180px-Parking_icon.svg.png&f=1&nofb=1)';
+                el.style.width = '20px';
+                el.style.height = '20px';
+                el.style.backgroundSize = "contain";
+                el.dataset.lat = marker.geometry.coordinates[1]
+                el.dataset.long = marker.geometry.coordinates[0]
+                el.dataset.owner = marker.properties.owner
+                el.dataset.price = marker.properties.price
+                el.dataset.availability = marker.properties.availability
 
-    // add markers to map
-    geojson.features.forEach(function(marker) {
-        // create a DOM element for the marker
-        var el = document.createElement('div');
-        el.className = 'spot-marker';
-        el.style.backgroundImage =
-            'url(https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fstatic.newworldencyclopedia.org%2Fthumb%2F5%2F5f%2FParking_icon.svg%2F180px-Parking_icon.svg.png&f=1&nofb=1)';
-        el.style.width = marker.properties.iconSize[0] + 'px';
-        el.style.height = marker.properties.iconSize[1] + 'px';
-        el.style.backgroundSize = "contain";
-        el.dataset.lat = marker.geometry.coordinates[1]
-        el.dataset.long = marker.geometry.coordinates[0]
+                var popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+                    '<h1>' + el.dataset.owner + '</h1>\n' +
+                        '<p>Available: ' + el.dataset.availability + '</p>\n' +
+                        '<p>' + el.dataset.price + ' / half hour</p>'
+                );
 
+                // add marker to map
+                new mapboxgl.Marker(el)
+                    .setLngLat(marker.geometry.coordinates)
+                    .setPopup(popup)
+                    .addTo(map);
+            });
+        })
+        .catch(err => { throw err });
 
-        /*el.addEventListener('click', function() {
-            var userLoc = document.getElementsByClassName("mapboxgl-user-location-dot");
-            if(userLoc.length > 0){
-                var userLocation = userLoc[0].style.transform;
-                console.log(userLocation);
-                var firstPX = userLocation.indexOf("px, ")
-                var userY = userLocation.substring(firstPX+4, userLocation.indexOf("px)"))
-                var userX = userLocation.substring(userLocation.indexOf(") ")+12, firstPX)
-                console.log("USER: (" + userX + ", " + userY + ")")
-                console.log(map.style)
-            }
-        });*/
-
-        // add marker to map
-        new mapboxgl.Marker(el)
-            .setLngLat(marker.geometry.coordinates)
-            .addTo(map);
-    });
 
     map.on('load', function() {
         //navigator.geolocation.getCurrentPosition(showPosition)
@@ -197,7 +162,6 @@
 
             var spotMarkers = document.getElementsByClassName("spot-marker");
             for(var i = 0; i < spotMarkers.length; i++){
-                console.log(spotMarkers[i])
                 getDistance(spotMarkers[i])
             }
 
@@ -214,7 +178,6 @@
                 var a = Math.pow(Math.sin(deltaLat/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(deltaLon/2), 2);
                 var c = 2 * Math.asin(Math.sqrt(a));
                 var EARTH_RADIUS = 6371;
-                console.log(el)
                 if (c * EARTH_RADIUS * 1000 > 804.67){
                     el.classList.add("hidden");
                 } else {
